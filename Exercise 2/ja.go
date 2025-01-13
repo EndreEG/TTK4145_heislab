@@ -94,7 +94,7 @@ func readDelimitedMessage(conn net.Conn) (string, error) {
 			return "", err
 		}
 		if n > 0 {
-			if buffer[0] == '\0' { // Check for the null-terminator
+			if buffer[0] == '\x00' { // Check for the null-terminator
 				break
 			}
 			message = append(message, buffer[0]) // Append character to the message
@@ -130,7 +130,7 @@ func sendMessages(conn net.Conn, messageType string) {
 			fmt.Println("Sent fixed-size message:", fixedSizeMessage)
 		} else if messageType == "delimited" {
 			// Send a delimited message (append '\0')
-			_, err := conn.Write([]byte(message + "\0"))
+			_, err := conn.Write([]byte(message + "\x00"))
 			if err != nil {
 				fmt.Println("Error sending delimited message:", err)
 				return
