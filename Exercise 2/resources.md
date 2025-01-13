@@ -31,7 +31,7 @@ InternetAddress fromWho
 
 loop {
     // clear buffer (or just create a new one)
-    
+    memset(buffer, 0, sizeof(buffer))
     // receive data on the socket
     // fromWho will be modified by ref here. Or it's a return value. Depends.
     // receive-like functions return the number of bytes received
@@ -63,7 +63,7 @@ loop {
         
 // if sending on broadcast:
 // you have to set up the BROADCAST socket option before calling connect / sendTo
-    broadcastIP = #.#.#.255 //First three bytes are from the local IP, or just use 255.255.255.255
+    broadcastIP = 10.100.23.255 //First three bytes are from the local IP, or just use 255.255.255.255
     addr = new InternetAddress(broadcastIP, port)
     sendSock = new Socket(udp) // UDP, aka SOCK_DGRAM
     sendSock.setOption(broadcast, true)
