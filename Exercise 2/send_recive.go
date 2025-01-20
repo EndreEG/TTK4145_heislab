@@ -32,7 +32,7 @@ func main() {
 		listenForReplies(communicationPort)
 	}()
 
-	// Step 5: Start sending messages to the server
+	//Start sending messages to the server
 	go func() {
 		defer wg.Done()
 		sendMessages(serverIP, communicationPort)

@@ -10,10 +10,8 @@ import (
 )
 
 func main() {
-	//Find the server's IP
 	serverIP := findServerIP()
 
-	// Ask for the message mode (fixed size or null terminated)
 	fmt.Print("Enter message mode (fixed size (1) or null terminated (2)): ")
 	var mode string
 	fmt.Scan(&mode)
@@ -62,7 +60,6 @@ func main() {
 		}
 	}()
 
-	// Wait for goroutines to finish (they won't unless there's an error)
 	wg.Wait()
 }
 
@@ -91,19 +88,20 @@ func findServerIP() string {
 
 		message := strings.TrimSpace(string(buffer[:n]))
 		fmt.Printf("Received broadcast from %s: %s\n", senderAddr, message)
-		return senderAddr.IP.String() // Return the server's IP
+		return senderAddr.IP.String()
 	}
 }
 
 func listenForRepliesTCP(conn net.Conn) {
-	reader := bufio.NewReader(conn)
+	buffer := make([]byte, 1024)
 	for {
-		reply, err := reader.ReadBytes('\n') // Assumes server replies are newline-terminated
+		n, err := conn.Read(buffer)
 		if err != nil {
 			fmt.Println("Error reading reply from server:", err)
 			return
 		}
-		fmt.Printf("Reply from server: %s\n", strings.TrimSpace(string(reply)))
+		reply := string(buffer[:n])
+		fmt.Printf("Reply from server: %s\n", strings.TrimSpace(reply))
 	}
 }
 
@@ -119,7 +117,6 @@ func sendFixedSizeMessages(conn net.Conn) {
 			continue
 		}
 
-		// Pad message to 256 bytes
 		paddedMessage := fmt.Sprintf("%-256s", message)
 		_, err := conn.Write([]byte(paddedMessage))
 		if err != nil {
