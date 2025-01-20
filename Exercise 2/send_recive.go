@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-	// Step 1: Find the server's IP by listening on port 30000
+	//Find the server's IP
 	serverIP := findServerIP()
 
-	// Step 2: Get workspace number and calculate communication port
+	//Get workspace number and calculate communication port
 	fmt.Print("Enter your workspace number: ")
 	var workspaceNumber int
 	fmt.Scan(&workspaceNumber)
@@ -22,11 +22,11 @@ func main() {
 	fmt.Printf("Server IP found: %s\n", serverIP)
 	fmt.Printf("Using communication port: %d\n", communicationPort)
 
-	// Step 3: Create WaitGroup to manage goroutines
+	//WaitGroup to manage goroutines
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	// Step 4: Start listening for replies from the server
+	// Start listening for replies from the server
 	go func() {
 		defer wg.Done()
 		listenForReplies(communicationPort)

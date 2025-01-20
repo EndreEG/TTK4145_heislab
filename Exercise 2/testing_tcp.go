@@ -10,29 +10,29 @@ import (
 )
 
 func main() {
-	// Step 1: Find the server's IP by listening on port 30000
+	//Find the server's IP
 	serverIP := findServerIP()
 
-	// Step 2: Ask for the message mode (fixed-size or null-terminated)
-	fmt.Print("Enter message mode (fixed-size or null-terminated): ")
+	// Ask for the message mode (fixed size or null terminated)
+	fmt.Print("Enter message mode (fixed size (1) or null terminated (2)): ")
 	var mode string
 	fmt.Scan(&mode)
 
 	var tcpPort int
 	switch strings.ToLower(mode) {
-	case "fixed-size":
+	case "1":
 		tcpPort = 34933
-	case "null-terminated":
+	case "2":
 		tcpPort = 33546
 	default:
-		fmt.Println("Invalid mode. Use 'fixed-size' or 'null-terminated'.")
+		fmt.Println("Invalid mode. Use '1' or '2'.")
 		return
 	}
 
 	fmt.Printf("Server IP found: %s\n", serverIP)
 	fmt.Printf("Connecting to TCP port: %d\n", tcpPort)
 
-	// Step 3: Establish a TCP connection
+	// Establish a TCP connection
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIP, tcpPort))
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
@@ -42,20 +42,20 @@ func main() {
 
 	fmt.Println("Connected to server.")
 
-	// Step 4: Create WaitGroup to manage goroutines
+	//WaitGroup to manage goroutines
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	// Step 5: Start listening for replies from the server
+	//Listening for replies from the server
 	go func() {
 		defer wg.Done()
 		listenForRepliesTCP(conn)
 	}()
 
-	// Step 6: Start sending messages to the server
+	//Sending messages to the server
 	go func() {
 		defer wg.Done()
-		if strings.ToLower(mode) == "fixed-size" {
+		if strings.ToLower(mode) == "1" {
 			sendFixedSizeMessages(conn)
 		} else {
 			sendNullTerminatedMessages(conn)
@@ -98,12 +98,12 @@ func findServerIP() string {
 func listenForRepliesTCP(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	for {
-		reply, err := reader.ReadString('\n') // Assumes server replies are newline-terminated
+		reply, err := reader.ReadBytes('\n') // Assumes server replies are newline-terminated
 		if err != nil {
 			fmt.Println("Error reading reply from server:", err)
 			return
 		}
-		fmt.Printf("Reply from server: %s\n", strings.TrimSpace(reply))
+		fmt.Printf("Reply from server: %s\n", strings.TrimSpace(string(reply)))
 	}
 }
 
