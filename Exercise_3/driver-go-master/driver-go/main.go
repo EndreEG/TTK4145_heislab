@@ -22,7 +22,13 @@ func main(){
     go elevio.PollObstructionSwitch(drv_obstr)
     go elevio.PollStopButton(drv_stop)
     
-    
+    for{
+        select {
+            
+        }
+    }
+
+    /*
     for {
         select {
         case a := <- drv_buttons:
@@ -55,5 +61,5 @@ func main(){
                 }
             }
         }
-    }    
+    } */   
 }
