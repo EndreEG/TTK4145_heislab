@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+
 	serverIP := findServerIP()
 
 	fmt.Print("Enter message mode (fixed size (1) or null terminated (2)): ")
@@ -37,20 +38,18 @@ func main() {
 		return
 	}
 	defer conn.Close()
-
 	fmt.Println("Connected to server.")
 
-	//WaitGroup to manage goroutines
+	go startListeningServer(":40000")
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	//Listening for replies from the server
 	go func() {
 		defer wg.Done()
 		listenForRepliesTCP(conn)
 	}()
 
-	//Sending messages to the server
 	go func() {
 		defer wg.Done()
 		if strings.ToLower(mode) == "1" {
@@ -61,6 +60,47 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+func startListeningServer(port string) {
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		fmt.Println("Error starting listening server:", err)
+		return
+	}
+	defer listener.Close()
+
+	fmt.Printf("Listening for incoming connections on %s...\n", port)
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection:", err)
+			continue
+		}
+		go handleIncomingConnection(conn)
+	}
+}
+
+func handleIncomingConnection(conn net.Conn) {
+	defer conn.Close()
+	fmt.Printf("Accepted connection from %s\n", conn.RemoteAddr())
+
+	reader := bufio.NewReader(conn)
+	for {
+		message, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Connection closed by peer:", err)
+			return
+		}
+		fmt.Printf("Message received: %s\n", strings.TrimSpace(message))
+
+		_, err = conn.Write([]byte("Echo: " + message))
+		if err != nil {
+			fmt.Println("Error sending echo:", err)
+			return
+		}
+	}
 }
 
 func findServerIP() string {
