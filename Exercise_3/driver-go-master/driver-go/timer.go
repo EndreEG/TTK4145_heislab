@@ -21,11 +21,11 @@ func timer_stop() {
 	timerActive = 0
 }
 
-func timer_timedOut() int {
+func timer_timedOut() bool {
 	if timerActive == 1 && (getWallTime() > timerEndTime) {
-		return 1
+		return true
 	} else {
-		return 0
+		return false
 	}
 
 }
