@@ -1,6 +1,8 @@
 package elevator
 
-import "fmt"
+import (
+	"fmt"
+)
 
 //Imported
 const NumFloors int = 4
@@ -81,6 +83,17 @@ func elevio_dirn_toString(dr Dirn) string { //Fant aldri i c-fil, men logikken b
 	}
 }
 
+
+
+func elevator_uninitialized() Elevator {
+	el := Elevator{floor: -1,
+		dirn:      D_Stop,
+		behaviour: EB_Idle,
+		config:    Config{clearRequestVariant: CV_All, doorOpenDuration_s: 3.0},
+	}
+	return el
+}
+
 func elevator_print(es Elevator) {
 	fmt.Printf("  +--------------------+\n")
 	fmt.Printf("|  floor = %-15d|\n|  dirn = %-15s |\n|  behav = %-15s|\n", es.floor,
@@ -106,15 +119,6 @@ func elevator_print(es Elevator) {
 		fmt.Printf("|   |\n")
 	}
 	fmt.Printf("  +--------------------+\n")
-}
-
-func elevator_uninitialized() Elevator {
-	el := Elevator{floor: -1,
-		dirn:      D_Stop,
-		behaviour: EB_Idle,
-		config:    Config{clearRequestVariant: CV_All, doorOpenDuration_s: 3.0},
-	}
-	return el
 }
 
 func main() {

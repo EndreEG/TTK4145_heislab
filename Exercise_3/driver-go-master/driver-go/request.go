@@ -76,10 +76,10 @@ func request_chooseDirection(e Elevator) DirnBehaviourPair {
 
 }
 
-func request_sholdStop(e Elevator) bool {
+func request_shouldStop(e Elevator) bool {
 	switch e.dirn {
 	case D_Down:
-		if (e.request[e.floor][B_Halldown] == 1 || e.request[e.floor][B_Cab] == 1 || !request_below(e)) == true {
+		if e.request[e.floor][B_Halldown] == 1 || e.request[e.floor][B_Cab] == 1 || !request_below(e) == true {
 			return true
 		}
 		return false
