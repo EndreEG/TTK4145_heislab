@@ -1,4 +1,4 @@
-package main
+package elevator
 
 import "fmt"
 
@@ -121,4 +121,3 @@ func main() {
 	a := elevator_uninitialized()
 	elevator_print(a)
 }
-
