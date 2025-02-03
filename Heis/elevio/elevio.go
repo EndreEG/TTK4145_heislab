@@ -47,6 +47,17 @@ func Init(addr string, numFloors int) {
 	if err != nil {
 		panic(err.Error())
 	}
+	// Reset button lamps and queue order
+	for f := 0; f < _numFloors; f++ {
+		for b := ButtonType(0); b < 3; b++ {
+			SetButtonLamp(b, f, false)
+		}
+	}
+	SetMotorDirection(MD_Stop)
+	SetDoorOpenLamp(false)
+	SetStopLamp(false)
+	SetFloorIndicator(0)
+
 	_initialized = true
 }
 
