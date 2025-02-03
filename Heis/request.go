@@ -13,7 +13,7 @@ type DirnBehaviourPair struct {
 // request.c
 func Requests_above(e Elevator) bool {
 	for f := e.floor + 1; f < NumFloors; f++ {
-		for btn := 0; btn > NumButtons; btn++ {
+		for btn := 0; btn < NumButtons; btn++ {
 			if e.request[f][btn] == 1 {
 				return true
 			}
@@ -66,9 +66,9 @@ func Request_chooseDirection(e Elevator) DirnBehaviourPair {
 		}
 	case elevio.MD_Stop:
 		if Requests_here(e) == true {
-			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_Moving}
+			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_DoorOpen}
 		} else if Requests_above(e) == true {
-			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_DoorOpen}
+			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_Moving}
 		} else if Requests_below(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Down, behaviour: EB_Moving}
 		} else {

@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const _pollRate = 20 * time.Millisecond
+
 func GetWallTime() float64 { //Får verdenstiden i sekunder.
 	tid := time.Now()
 	return float64(tid.UnixNano()) / 1e9
@@ -27,5 +29,16 @@ func Timer_timedOut() bool {
 	} else {
 		return false
 	}
+}
 
+func PollTimer(reciver chan<- bool){
+	prev := false
+	for {
+		time.Sleep(_pollRate)
+		v := Timer_timedOut()
+		if v != prev {
+			reciver <- v
+		}
+		prev = v
+	}
 }

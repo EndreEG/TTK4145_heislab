@@ -6,7 +6,7 @@ import (
 	"runtime"
 )
 
-var elevator Elevator
+var elevator Elevator = Elevator_uninitialized()
 
 func SetAllLights(es Elevator) {
 	bu := []elevio.ButtonType{elevio.BT_HallUp, elevio.BT_HallDown, elevio.BT_Cab}
@@ -23,6 +23,8 @@ func Fsm_onInitBetweenFloors() {
 	elevator.behaviour = EB_Moving
 }
 
+
+
 func Fsm_onRequestButtonPress(btn_floor int, btn_type elevio.ButtonType) {
 	pc, _, _, _ := runtime.Caller(0)
 	functionName := runtime.FuncForPC(pc).Name()
@@ -37,9 +39,11 @@ func Fsm_onRequestButtonPress(btn_floor int, btn_type elevio.ButtonType) {
 			elevator.request[btn_floor][btn_type] = 1
 		}
 		break
+
 	case EB_Moving:
 		elevator.request[btn_floor][btn_type] = 1
 		break
+	
 	case EB_Idle:
 		elevator.request[btn_floor][btn_type] = 1
 		var pair DirnBehaviourPair = Request_chooseDirection(elevator)
@@ -52,9 +56,11 @@ func Fsm_onRequestButtonPress(btn_floor int, btn_type elevio.ButtonType) {
 			Timer_start(elevator.config.doorOpenDuration_s)
 			elevator = Requests_clearAtCurrentFloor(elevator)
 			break
+		
 		case EB_Moving:
 			elevio.SetMotorDirection(elevator.dirn)
 			break
+		
 		case EB_Idle:
 			break
 
@@ -62,18 +68,22 @@ func Fsm_onRequestButtonPress(btn_floor int, btn_type elevio.ButtonType) {
 		break
 
 	}
+
 	SetAllLights(elevator)
 	fmt.Printf("\nNew state:\n")
 	Elevator_print(elevator)
 }
 
 func Fsm_onFloorArrival(newFloor int) {
+	
 	pc, _, _, _ := runtime.Caller(0)
 	functionName := runtime.FuncForPC(pc).Name()
 	fmt.Printf("\n\n%s(%d)\n", functionName, newFloor)
 	Elevator_print(elevator)
+	
 	elevator.floor = newFloor
 	elevio.SetFloorIndicator(elevator.floor)
+	
 	switch elevator.behaviour {
 	case EB_Moving:
 		if Requests_shouldStop(elevator) {
@@ -91,6 +101,7 @@ func Fsm_onFloorArrival(newFloor int) {
 	fmt.Printf("\nNew state:\n")
 	Elevator_print(elevator)
 }
+
 
 func Fsm_onDoorTimeout() {
 	pc, _, _, _ := runtime.Caller(0)
@@ -111,6 +122,7 @@ func Fsm_onDoorTimeout() {
 			elevator = Requests_clearAtCurrentFloor(elevator)
 			SetAllLights(elevator)
 			break
+		
 		case EB_Moving, EB_Idle:
 			elevio.SetDoorOpenLamp(false)
 			elevio.SetMotorDirection(elevator.dirn)
