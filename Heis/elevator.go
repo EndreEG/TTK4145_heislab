@@ -43,7 +43,7 @@ type Elevator struct {
 //------------------------------------
 
 // elevator.c
-func elevio_toString(eb ElevatorBehaviour) string {
+func Elevio_toString(eb ElevatorBehaviour) string {
 	if eb == EB_Idle {
 		return "EB_Idle"
 	} else if eb == EB_DoorOpen {
@@ -55,7 +55,7 @@ func elevio_toString(eb ElevatorBehaviour) string {
 	}
 }
 
-func elevio_button_toString(eb elevio.ButtonType) string {
+func Elevio_button_toString(eb elevio.ButtonType) string {
 	if eb == elevio.BT_HallUp {
 		return "BT_HallUp"
 	} else if eb == elevio.BT_Cab {
@@ -67,7 +67,7 @@ func elevio_button_toString(eb elevio.ButtonType) string {
 	}
 }
 
-func elevio_dirn_toString(dr elevio.MotorDirection) string { //Fant aldri i c-fil, men logikken burde være den samme som forrige
+func Elevio_dirn_toString(dr elevio.MotorDirection) string { //Fant aldri i c-fil, men logikken burde være den samme som forrige
 	if dr == elevio.MD_Down {
 		return "D_Down"
 	} else if dr == elevio.MD_Stop {
@@ -79,10 +79,10 @@ func elevio_dirn_toString(dr elevio.MotorDirection) string { //Fant aldri i c-fi
 	}
 }
 
-func elevator_print(es Elevator) {
+func Elevator_print(es Elevator) {
 	fmt.Printf("  +--------------------+\n")
 	fmt.Printf("|  floor = %-15d|\n|  dirn = %-15s |\n|  behav = %-15s|\n", es.floor,
-		elevio_dirn_toString(es.dirn), elevio_toString(es.behaviour))
+		Elevio_dirn_toString(es.dirn), Elevio_toString(es.behaviour))
 	fmt.Printf("  +--------------------+\n")
 	fmt.Printf("|   | up  | dn  | cab |   |\n")
 	for f := NumFloors - 1; f >= 0; f-- {
@@ -106,7 +106,7 @@ func elevator_print(es Elevator) {
 	fmt.Printf("  +--------------------+\n")
 }
 
-func elevator_uninitialized() Elevator {
+func Elevator_uninitialized() Elevator {
 	el := Elevator{floor: -1,
 		dirn:      elevio.MD_Stop,
 		behaviour: EB_Idle,

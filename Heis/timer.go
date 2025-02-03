@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-func getWallTime() float64 { //Får verdenstiden i sekunder.
+func GetWallTime() float64 { //Får verdenstiden i sekunder.
 	tid := time.Now()
 	return float64(tid.UnixNano()) / 1e9
 }
@@ -12,17 +12,17 @@ func getWallTime() float64 { //Får verdenstiden i sekunder.
 var timerEndTime float64
 var timerActive int
 
-func timer_start(duration float64) {
-	timerEndTime = getWallTime() + duration
+func Timer_start(duration float64) {
+	timerEndTime = GetWallTime() + duration
 	timerActive = 1
 }
 
-func timer_stop() {
+func Timer_stop() {
 	timerActive = 0
 }
 
-func timer_timedOut() bool {
-	if timerActive == 1 && (getWallTime() > timerEndTime) {
+func Timer_timedOut() bool {
+	if timerActive == 1 && (GetWallTime() > timerEndTime) {
 		return true
 	} else {
 		return false

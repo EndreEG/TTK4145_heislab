@@ -11,7 +11,7 @@ type DirnBehaviourPair struct {
 }
 
 // request.c
-func requests_above(e Elevator) bool {
+func Requests_above(e Elevator) bool {
 	for f := e.floor + 1; f < NumFloors; f++ {
 		for btn := 0; btn > NumButtons; btn++ {
 			if e.request[f][btn] == 1 {
@@ -22,7 +22,7 @@ func requests_above(e Elevator) bool {
 	return false
 }
 
-func requests_below(e Elevator) bool {
+func Requests_below(e Elevator) bool {
 	for f := 0; f < e.floor; f++ {
 		for btn := 0; btn < NumButtons; btn++ {
 			if e.request[f][btn] == 1 {
@@ -33,7 +33,7 @@ func requests_below(e Elevator) bool {
 	return false
 }
 
-func requests_here(e Elevator) bool {
+func Requests_here(e Elevator) bool {
 	for btn := 0; btn < NumButtons; btn++ {
 		if e.request[e.floor][btn] == 1 {
 			return true
@@ -42,34 +42,34 @@ func requests_here(e Elevator) bool {
 	return false
 }
 
-func request_chooseDirection(e Elevator) DirnBehaviourPair {
+func Request_chooseDirection(e Elevator) DirnBehaviourPair {
 	switch e.dirn {
 	case elevio.MD_Up:
-		if requests_above(e) == true {
+		if Requests_above(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_Moving}
-		} else if requests_here(e) == true {
+		} else if Requests_here(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Down, behaviour: EB_DoorOpen}
-		} else if requests_below(e) == true {
+		} else if Requests_below(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Down, behaviour: EB_Moving}
 		} else {
 			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_Idle}
 		}
 	case elevio.MD_Down:
-		if requests_below(e) == true {
+		if Requests_below(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Down, behaviour: EB_Moving}
-		} else if requests_here(e) == true {
+		} else if Requests_here(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_DoorOpen}
-		} else if requests_above(e) == true {
+		} else if Requests_above(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_Moving}
 		} else {
 			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_Idle}
 		}
 	case elevio.MD_Stop:
-		if requests_here(e) == true {
+		if Requests_here(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_Moving}
-		} else if requests_above(e) == true {
+		} else if Requests_above(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Up, behaviour: EB_DoorOpen}
-		} else if requests_below(e) == true {
+		} else if Requests_below(e) == true {
 			return DirnBehaviourPair{dirn: elevio.MD_Down, behaviour: EB_Moving}
 		} else {
 			return DirnBehaviourPair{dirn: elevio.MD_Stop, behaviour: EB_Idle}
@@ -80,15 +80,15 @@ func request_chooseDirection(e Elevator) DirnBehaviourPair {
 
 }
 
-func requests_shouldStop(e Elevator) bool {
+func Requests_shouldStop(e Elevator) bool {
 	switch e.dirn {
 	case elevio.MD_Down:
-		if (e.request[e.floor][elevio.BT_HallDown] == 1 || e.request[e.floor][elevio.BT_Cab] == 1 || !requests_below(e)) == true {
+		if (e.request[e.floor][elevio.BT_HallDown] == 1 || e.request[e.floor][elevio.BT_Cab] == 1 || !Requests_below(e)) == true {
 			return true
 		}
 		return false
 	case elevio.MD_Up:
-		if e.request[e.floor][elevio.BT_HallUp] == 1 || e.request[e.floor][elevio.BT_Cab] == 1 || !requests_above(e) == true {
+		if e.request[e.floor][elevio.BT_HallUp] == 1 || e.request[e.floor][elevio.BT_Cab] == 1 || !Requests_above(e) == true {
 			return true
 		}
 		return false
@@ -100,7 +100,7 @@ func requests_shouldStop(e Elevator) bool {
 
 }
 
-func requests_shouldClearImmediatly(e Elevator, btn_floor int, btn_type elevio.ButtonType) bool {
+func Requests_shouldClearImmediatly(e Elevator, btn_floor int, btn_type elevio.ButtonType) bool {
 	switch e.config.clearRequestVariant {
 	case CV_All:
 		return (e.floor == btn_floor)
@@ -112,7 +112,7 @@ func requests_shouldClearImmediatly(e Elevator, btn_floor int, btn_type elevio.B
 
 }
 
-func requests_clearAtCurrentFloor(e Elevator) Elevator {
+func Requests_clearAtCurrentFloor(e Elevator) Elevator {
 	switch e.config.clearRequestVariant {
 	case CV_All:
 		for btn := 0; btn < NumButtons; btn++ { //btn var her et Button object i c-filen, men siden de behandlet den som en int, gjorde jeg det samme
@@ -123,13 +123,13 @@ func requests_clearAtCurrentFloor(e Elevator) Elevator {
 		e.request[e.floor][elevio.BT_Cab] = 0
 		switch e.dirn {
 		case elevio.MD_Up:
-			if !requests_above(e) && !(e.request[e.floor][elevio.BT_HallUp] == 1) {
+			if !Requests_above(e) && !(e.request[e.floor][elevio.BT_HallUp] == 1) {
 				e.request[e.floor][elevio.BT_HallDown] = 0
 			}
 			e.request[e.floor][elevio.BT_HallUp] = 0
 			break
 		case elevio.MD_Down:
-			if !requests_below(e) && !(e.request[e.floor][elevio.BT_HallDown] == 1) {
+			if !Requests_below(e) && !(e.request[e.floor][elevio.BT_HallDown] == 1) {
 				e.request[e.floor][elevio.BT_HallUp] = 0
 			}
 			e.request[e.floor][elevio.BT_HallDown] = 0

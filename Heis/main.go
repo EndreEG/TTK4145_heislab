@@ -28,11 +28,11 @@ func main() {
 		select {
 		case a := <-drv_buttons:
 			fmt.Printf("%+v\n", a)
-			fsm_onRequestButtonPress(a.Floor, a.Button)
+			Fsm_onRequestButtonPress(a.Floor, a.Button)
 
 		case a := <-drv_floors:
 			fmt.Printf("%+v\n", a)
-			fsm_onFloorArrival(a)
+			Fsm_onFloorArrival(a)
 
 			/*case a := <-drv_obstr:
 				fmt.Printf("%+v\n", a)
