@@ -6,12 +6,14 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 )
 
 const (
-	address       = "localhost:8080"
+	address       = "localhost:8082"
 	heartbeatFreq = 500 * time.Millisecond
 	timeout       = 2 * heartbeatFreq
 )
@@ -25,36 +27,48 @@ func runPrimary(startNum int) {
 	defer ln.Close()
 
 	// Spawn backup process
-	spawnBackup(startNum)
+	spawnBackup()
 
 	count := startNum
-	for {
-		fmt.Println(count)
+	var conn net.Conn
 
-		// Accept backup connection
-		conn, err := ln.Accept()
+	for {
+		if conn == nil {
+			fmt.Println("Waiting for backup...")
+			conn, err = ln.Accept()
+			if err != nil {
+				fmt.Println("Failed to accept connection:", err)
+				continue
+			}
+			fmt.Println(count)
+		}
+
+		writer := bufio.NewWriter(conn)
+		_, err := fmt.Fprintln(writer, count)
 		if err != nil {
-			fmt.Println("Failed to accept connection:", err)
+			fmt.Println("Lost connection to backup. Waiting for new backup...")
+			conn.Close()
+			conn = nil
+			spawnBackup()
 			continue
 		}
 
-		// Send heartbeat with the current count
-		writer := bufio.NewWriter(conn)
-		fmt.Fprintln(writer, count)
 		writer.Flush()
-		conn.Close()
-
+		fmt.Println(count)
 		count++
 		time.Sleep(heartbeatFreq)
 	}
 }
 
 func runBackup() {
+
+	signal.Ignore(syscall.SIGTERM)
+	
 	for {
 		conn, err := net.Dial("tcp", address)
 		if err != nil {
 			fmt.Println("Primary not found. Becoming new primary...")
-			runPrimary(1) // Default to 1 if no previous count is known
+			runPrimary(1) 
 			return
 		}
 
@@ -77,9 +91,11 @@ func runBackup() {
 	}
 }
 
-func spawnBackup(startNum int) {
+func spawnBackup() {
 	cmd := exec.Command(os.Args[0], "backup")
-	cmd.Env = append(os.Environ(), fmt.Sprintf("START_NUM=%d", startNum))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 	cmd.Start()
 }
 
