@@ -17,8 +17,14 @@ The process pair mechanism on its own forms one of the three parts of making bug
 Some engineering questions, before you continue:
 
 - Why would we aim to detect success in results, instead of the more classical way of detecting errors/failures?
+  By aiming to detect success in results, we get to confirm that the system works as designed under normal circumstances. 
+
 - Why would we want to self-terminate, instead of handling the error immediately in the "primary" (as opposed to deferring it to the backup as it "spins up")?
+  Self-terminating instead of handling error immediately in the primary will ensure that we do not get cascading fails in the primary. A controlled termination wil also allow for a smoother transition, and the backup can assume the primary role without delay. For less critical errors, the primary can attempt to handle the issue without terminating.
+
+
 - Is there any reason to prefer a process pair style, as opposed to making a separate supervisor-like program whose sole purpose is to restart the main program?
+  The backup can instantly take over the primary role upon failure, which will minimize downtime. 
 
 ---
 

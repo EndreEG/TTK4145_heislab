@@ -66,7 +66,6 @@ func main() {
 			elevio.SetStopLamp(true)
 			fmt.Printf("%+v\n", a)
 			elevio.SetMotorDirection(elevio.MD_Stop)
-			elevator.behaviour = EB_Stop
 			for floor := 0; floor < numFloors; floor++ {
 				for btn := elevio.ButtonType(0); btn < 3; btn++ {
 					elevio.SetButtonLamp(btn, floor, false)

@@ -18,7 +18,6 @@ const (
 	EB_Idle = iota
 	EB_DoorOpen
 	EB_Moving
-	EB_Stop
 )
 
 type ClearRequestVariant int
