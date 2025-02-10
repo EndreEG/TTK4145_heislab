@@ -1,112 +1,116 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"os"
-	"os/exec"
 	"strconv"
-	"sync"
 	"time"
 )
 
 const (
-	HOST           = "localhost"
-	PORT           = "5000"
-	HEARTBEAT_RATE = 500 * time.Millisecond
-	FAILOVER_TIME  = 2 * HEARTBEAT_RATE
+	heartbeatInterval = 1 * time.Second // Time between heartbeats
+	missedThreshold   = 3               // Number of missed heartbeats before taking over
+	tcpPort           = ":9999"         // TCP port for communication
+	counterFile       = "counter.txt"   // File to store the last number
 )
 
-var count int = 1
-var mutex sync.Mutex
-
-// StartBackup launches a new backup process.
-func StartBackup() {
-	cmd := exec.Command(os.Args[0], "backup", strconv.Itoa(count))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Start()
+// Read the last number from the file
+func readLastNumber() int {
+	data, err := os.ReadFile(counterFile)
 	if err != nil {
-		fmt.Println("Failed to start backup:", err)
-		os.Exit(1)
+		return 0 // Start from 0 if file doesn't exist
 	}
+	number, _ := strconv.Atoi(string(data))
+	return number
 }
 
-// Primary process: sends heartbeats and increments the counter.
-func RunPrimary() {
-	StartBackup()
+// Write the last number to the file
+func writeLastNumber(number int) {
+	os.WriteFile(counterFile, []byte(strconv.Itoa(number)), 0644)
+}
 
-	listener, err := net.Listen("tcp", HOST+":"+PORT)
+// Primary process: counts and sends heartbeats to the backup
+func primary() {
+	number := readLastNumber()
+	fmt.Println("Primary is running. Starting count from:", number)
+
+	// Set up TCP listener
+	listener, err := net.Listen("tcp", tcpPort)
 	if err != nil {
-		fmt.Println("Error starting listener:", err)
-		os.Exit(1)
+		fmt.Println("Error setting up TCP listener:", err)
+		return
 	}
 	defer listener.Close()
 
+	// Accept a connection from the backup
 	conn, err := listener.Accept()
 	if err != nil {
 		fmt.Println("Error accepting connection:", err)
-		os.Exit(1)
+		return
 	}
 	defer conn.Close()
 
-	writer := bufio.NewWriter(conn)
-
 	for {
-		mutex.Lock()
-		fmt.Println(count)
-		count++
-		mutex.Unlock()
+		// Print the number and save it
+		fmt.Println(number)
+		writeLastNumber(number)
+		number++
 
-		_, err := writer.WriteString(fmt.Sprintf("%d\n", count))
+		// Send a heartbeat to the backup
+		_, err := conn.Write([]byte("heartbeat\n"))
 		if err != nil {
-			fmt.Println("Lost connection to backup. Exiting...")
-			break
+			fmt.Println("Error sending heartbeat:", err)
+			return
 		}
-		writer.Flush()
 
-		time.Sleep(HEARTBEAT_RATE)
+		// Wait before the next iteration
+		time.Sleep(heartbeatInterval)
 	}
 }
 
-// Backup process: listens for heartbeats and becomes primary if they stop.
-func RunBackup(initialCount int) {
-	count = initialCount
-	conn, err := net.Dial("tcp", HOST+":"+PORT)
-	if err == nil {
-		// Primary exists, act as backup
-		defer conn.Close()
-		reader := bufio.NewScanner(conn)
-		lastHeartbeat := time.Now()
+// Backup process: connects to the primary and monitors for heartbeats
+func backup() {
+	fmt.Println("Backup is running. Waiting to take over...")
 
-		for reader.Scan() {
-			mutex.Lock()
-			count, _ = strconv.Atoi(reader.Text())
-			mutex.Unlock()
-			lastHeartbeat = time.Now()
-		}
-
-		// Check if too much time has passed since last heartbeat
-		for time.Since(lastHeartbeat) < FAILOVER_TIME {
-			time.Sleep(HEARTBEAT_RATE)
-		}
-
-		// Lost heartbeat connection
-		fmt.Println("Primary seems dead. Taking over...")
-	} else {
-		fmt.Println("No primary detected. Becoming primary.")
+	// Connect to the primary
+	conn, err := net.Dial("tcp", "localhost"+tcpPort)
+	if err != nil {
+		fmt.Println("Error connecting to primary:", err)
+		fmt.Println("Assuming primary is dead. Taking over...")
+		primary() // Become the primary
+		return
 	}
+	defer conn.Close()
 
-	// Become new primary
-	RunPrimary()
+	missedHeartbeats := 0
+	buffer := make([]byte, 1024)
+
+	for {
+		// Set a timeout for receiving heartbeats
+		conn.SetReadDeadline(time.Now().Add(heartbeatInterval * 2))
+
+		// Try to read a heartbeat
+		_, err := conn.Read(buffer)
+		if err != nil {
+			missedHeartbeats++
+			fmt.Println("Missed heartbeat:", missedHeartbeats)
+			if missedHeartbeats >= missedThreshold {
+				fmt.Println("Primary is dead. Taking over...")
+				primary() // Become the primary
+				return
+			}
+		} else {
+			missedHeartbeats = 0 // Reset counter if heartbeat is received
+		}
+	}
 }
 
 func main() {
-	if len(os.Args) > 2 && os.Args[1] == "backup" {
-		initialCount, _ := strconv.Atoi(os.Args[2])
-		RunBackup(initialCount)
+	// Check if this process is the primary or backup
+	if len(os.Args) > 1 && os.Args[1] == "--primary" {
+		primary()
 	} else {
-		RunPrimary()
+		backup()
 	}
 }
