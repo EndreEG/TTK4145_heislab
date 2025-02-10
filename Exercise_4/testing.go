@@ -17,11 +17,11 @@ const (
 	counterFile       = "counter.txt"   // File to store the last number
 )
 
-// Read the last number from the file
+
 func readLastNumber() int {
 	data, err := os.ReadFile(counterFile)
 	if err != nil {
-		return 0 // Start from 0 if file doesn't exist
+		return 0 
 	}
 	number, _ := strconv.Atoi(string(data))
 	return number
@@ -99,17 +99,16 @@ func backup() {
 			fmt.Println("Missed heartbeat:", missedHeartbeats)
 			if missedHeartbeats >= missedThreshold {
 				fmt.Println("Primary is dead. Taking over...")
-				primary() // Become the primary
+				primary() 
 				return
 			}
 		} else {
-			missedHeartbeats = 0 // Reset counter if heartbeat is received
+			missedHeartbeats = 0 
 		}
 	}
 }
 
 func main() {
-	// Check if this process is the primary or backup
 	if len(os.Args) > 1 && os.Args[1] == "--primary" {
 		primary()
 	} else {
