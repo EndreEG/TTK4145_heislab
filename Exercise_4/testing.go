@@ -1,5 +1,7 @@
 package main
 
+//FOR WINDOWS
+
 import (
 	"bufio"
 	"fmt"
@@ -21,7 +23,6 @@ const (
 var count int = 1
 var mutex sync.Mutex
 
-// StartBackup launches a new backup process.
 func StartBackup() {
 	cmd := exec.Command(os.Args[0], "backup", strconv.Itoa(count))
 	cmd.Stdout = os.Stdout
@@ -33,7 +34,7 @@ func StartBackup() {
 	}
 }
 
-// Primary process: sends heartbeats and increments the counter.
+
 func RunPrimary() {
 	StartBackup()
 
@@ -70,7 +71,7 @@ func RunPrimary() {
 	}
 }
 
-// Backup process: listens for heartbeats and becomes primary if they stop.
+
 func RunBackup(initialCount int) {
 	count = initialCount
 	conn, err := net.Dial("tcp", HOST+":"+PORT)
@@ -87,18 +88,15 @@ func RunBackup(initialCount int) {
 			lastHeartbeat = time.Now()
 		}
 
-		// Check if too much time has passed since last heartbeat
 		for time.Since(lastHeartbeat) < FAILOVER_TIME {
 			time.Sleep(HEARTBEAT_RATE)
 		}
 
-		// Lost heartbeat connection
 		fmt.Println("Primary seems dead. Taking over...")
 	} else {
 		fmt.Println("No primary detected. Becoming primary.")
 	}
 
-	// Become new primary
 	RunPrimary()
 }
 
