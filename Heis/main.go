@@ -3,6 +3,7 @@ package main
 import (
 	"Heis/elevio"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -62,13 +63,18 @@ func main() {
 				}
 
 		case a := <-drv_stop:
+			elevio.SetStopLamp(true)
 			fmt.Printf("%+v\n", a)
 			elevio.SetMotorDirection(elevio.MD_Stop)
-			for f := 0; f < numFloors; f++ {
-				for b := elevio.ButtonType(0); b < 3; b++ {
-					elevio.SetButtonLamp(b, f, false)
+			elevator.behaviour = EB_Stop
+			for floor := 0; floor < numFloors; floor++ {
+				for btn := elevio.ButtonType(0); btn < 3; btn++ {
+					elevio.SetButtonLamp(btn, floor, false)
+					elevator.request[floor][btn] = 0
 				}
 			}
+			elevio.SetStopLamp(false)
+			os.Exit(0)
 		}
 
 		time.Sleep((500 * time.Duration(inputPollRate)))
