@@ -5,18 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+<<<<<<< HEAD
 	"sync"
 )
 
-type ElevatorState struct {
-	ID       string `json:"id"`
-	Floor    int    `json:"floor"`
-	Behavior string `json:"behavior"`
-}
-
 var (
-	connections = make(map[string]net.Conn)
-	mu          sync.Mutex
+	connections    = make(map[string]net.Conn)
+	mu             sync.Mutex
+	elevatorStates = make(map[string]ElevatorState) // Stores elevator states
 )
 
 func StartServer(port string) {
@@ -35,7 +31,6 @@ func StartServer(port string) {
 			fmt.Println("Connection error:", err)
 			continue
 		}
-
 		go handleConnection(conn)
 	}
 }
@@ -44,36 +39,53 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
 
-	// Read elevator ID
-	id, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error reading ID:", err)
-		return
-	}
-
-	id = id[:len(id)-1] // Trim newline
-	mu.Lock()
-	connections[id] = conn
-	mu.Unlock()
-	fmt.Println("Elevator connected:", id)
-
 	for {
 		message, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("Lost connection to", id)
-			mu.Lock()
-			delete(connections, id)
-			mu.Unlock()
+			fmt.Println("Lost connection")
 			return
 		}
 
 		var state ElevatorState
 		err = json.Unmarshal([]byte(message), &state)
 		if err != nil {
-			fmt.Println("Invalid message from", id, ":", message)
+			fmt.Println("Invalid message:", message)
 			continue
 		}
 
-		fmt.Printf("Received from %s: %+v\n", id, state)
+		mu.Lock()
+		elevatorStates[state.ID] = state
+		mu.Unlock()
+
+		fmt.Printf("Received update: %+v\n", state)
 	}
+=======
+)
+
+type ElevatorState struct {
+	ID       string `json:"id"`
+	Floor    int    `json:"floor"`
+	Behavior string `json:"behavior"`
+}
+
+// Send elevator state update to the primary server
+func SendElevatorUpdate(id string, floor int, behavior string) {
+	message := ElevatorState{ID: id, Floor: floor, Behavior: behavior}
+	data, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return
+	}
+
+	conn, err := net.Dial("tcp", "localhost:5000") // Connect to the server
+	if err != nil {
+		fmt.Println("Could not connect to server:", err)
+		return
+	}
+	defer conn.Close()
+
+	writer := bufio.NewWriter(conn)
+	writer.WriteString(string(data) + "\n")
+	writer.Flush()
+>>>>>>> 971c211... Implemented network functionality
 }
