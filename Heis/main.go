@@ -2,12 +2,32 @@ package main
 
 import (
 	"Heis/elevio"
+	"Heis/network"
 	"fmt"
 	"os"
 	"time"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <server|client> [elevatorID]")
+		os.Exit(1)
+	}
+
+	role := os.Args[1]
+	elevatorID := "Elevator1" // Default ID for primary
+
+	if role == "server" {
+		fmt.Println("Starting as PRIMARY SERVER")
+		go network.StartServer("5000") // Start TCP server
+	} else if role == "client" && len(os.Args) == 3 {
+		elevatorID = os.Args[2] // Assign ID from command-line argument
+		fmt.Println("Starting as SECONDARY CLIENT:", elevatorID)
+		go network.StartClient("localhost:5000", elevatorID) // Connect to primary
+	} else {
+		fmt.Println("Invalid arguments")
+		os.Exit(1)
+	}
 
 	numFloors := 4
 
@@ -29,10 +49,10 @@ func main() {
 	go PollTimer(timeout)
 
 	inputPollRate := 25
-	
+
 	if elevio.GetFloor() == -1 {
-        Fsm_onInitBetweenFloors();
-    }
+		Fsm_onInitBetweenFloors()
+	}
 
 	for {
 
@@ -45,9 +65,9 @@ func main() {
 			fmt.Printf("%+v\n", a)
 			Fsm_onFloorArrival(a)
 
-		case a := <- timeout:
+		case a := <-timeout:
 			fmt.Printf("%+v\n", a)
-			Timer_stop()	
+			Timer_stop()
 			Fsm_onDoorTimeout()
 
 		case a := <-drv_obstr:
@@ -58,9 +78,9 @@ func main() {
 					b := <-drv_obstr
 					if !b {
 						break
-						}
 					}
 				}
+			}
 
 		case a := <-drv_stop:
 			elevio.SetStopLamp(true)
@@ -79,4 +99,3 @@ func main() {
 		time.Sleep((500 * time.Duration(inputPollRate)))
 	}
 }
-

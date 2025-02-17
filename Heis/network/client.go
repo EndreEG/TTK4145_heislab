@@ -8,12 +8,6 @@ import (
 	"time"
 )
 
-type ElevatorState struct {
-	ID       string `json:"id"`
-	Floor    int    `json:"floor"`
-	Behavior string `json:"behavior"`
-}
-
 func StartClient(serverAddr, id string) {
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
@@ -23,9 +17,6 @@ func StartClient(serverAddr, id string) {
 	defer conn.Close()
 
 	fmt.Println("Connected to primary at", serverAddr)
-
-	// Send elevator ID to server
-	fmt.Fprintln(conn, id)
 
 	writer := bufio.NewWriter(conn)
 
