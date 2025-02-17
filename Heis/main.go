@@ -47,9 +47,10 @@ func main() {
 
 		case a := <- timeout:
 			fmt.Printf("%+v\n", a)
-			Timer_stop()	
-			Fsm_onDoorTimeout()
-
+			Timer_stop()
+			Fsm_onDoorTimeout()	
+	
+		
 		case a := <-drv_obstr:
 			fmt.Printf("%+v\n", a)
 			if a && elevator.behaviour == EB_DoorOpen {
