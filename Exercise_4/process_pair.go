@@ -1,4 +1,6 @@
-package main
+package main2
+
+//kill -INT $(lsof -t -i :8080)
 
 import (
 	"bufio"
@@ -13,12 +15,13 @@ import (
 )
 
 const (
-	address       = "localhost:8082"
+	address       = "localhost:8080"
 	heartbeatFreq = 500 * time.Millisecond
 	timeout       = 2 * heartbeatFreq
 )
 
 func runPrimary(startNum int) {
+
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
 		fmt.Println("Error starting server:", err)

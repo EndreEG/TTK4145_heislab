@@ -18,26 +18,24 @@ const (
 )
 
 func main() {
-	// Try to connect to an existing primary
+	
 	conn, err := net.Dial("tcp", primaryPort)
 	if err != nil {
-		// No primary found, become the primary
 		fmt.Println("No primary found, starting as primary.")
 		go startPrimary(primaryPort, secondaryPort)
 	} else {
-		// Primary exists, become the secondary
 		conn.Close()
 		fmt.Println("Primary found, starting as secondary.")
 		go startSecondary(secondaryPort, primaryPort)
 	}
 
-	select {} // Keep main running
+	select {}
 }
 
 func loadCount() int {
 	file, err := os.Open(stateFile)
 	if err != nil {
-		return 0 // Default to 0 if file doesn't exist
+		return 0 
 	}
 	defer file.Close()
 
@@ -65,7 +63,6 @@ func startPrimary(primaryAddr, secondaryAddr string) {
 	defer listener.Close()
 	fmt.Println("Primary started on", primaryAddr)
 
-	// Ensure a secondary is started
 	go startSecondary(secondaryAddr, primaryAddr)
 
 	signalChan := make(chan os.Signal, 1)
@@ -94,7 +91,7 @@ func startPrimary(primaryAddr, secondaryAddr string) {
 			time.Sleep(1 * time.Second)
 			count++
 			saveCount(count)
-			fmt.Println("Primary count:", count)
+			fmt.Println("Count:", count)
 			fmt.Fprintf(conn, "%d\n", count)
 		}
 	}
@@ -122,12 +119,11 @@ func startSecondary(secondaryAddr, primaryAddr string) {
 		for scanner.Scan() {
 			count, _ = strconv.Atoi(scanner.Text())
 			saveCount(count)
-			fmt.Println("Received count from primary:", count)
 		}
 
 		fmt.Println("Primary disconnected. Becoming primary...")
 		conn.Close()
-		go startPrimary(secondaryAddr, primaryAddr) // Swap roles
+		go startPrimary(secondaryAddr, primaryAddr)
 		return
 	}
 }

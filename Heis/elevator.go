@@ -110,7 +110,7 @@ func Elevator_uninitialized() Elevator {
 	el := Elevator{floor: -1,
 		dirn:      elevio.MD_Stop,
 		behaviour: EB_Idle,
-		config:    Config{clearRequestVariant: CV_All, doorOpenDuration_s: 3.0},
+		config:    Config{clearRequestVariant: CV_InDirn, doorOpenDuration_s: 3.0},
 	}
 	return el
 }

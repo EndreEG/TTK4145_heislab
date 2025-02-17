@@ -105,7 +105,7 @@ func Requests_shouldClearImmediatly(e Elevator, btn_floor int, btn_type elevio.B
 	case CV_All:
 		return (e.floor == btn_floor)
 	case CV_InDirn:
-		return e.floor == btn_floor && (e.dirn == elevio.MD_Up && btn_type == elevio.BT_HallUp) || (e.dirn == elevio.MD_Down && btn_type == elevio.BT_HallDown) || e.dirn == elevio.MD_Stop || btn_type == elevio.BT_Cab
+		return e.floor == btn_floor && ((e.dirn == elevio.MD_Up && btn_type == elevio.BT_HallUp) || (e.dirn == elevio.MD_Down && btn_type == elevio.BT_HallDown) || e.dirn == elevio.MD_Stop || btn_type == elevio.BT_Cab)
 	default:
 		return false
 	}
