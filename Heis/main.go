@@ -67,7 +67,7 @@ func main() {
 
 		case a := <-timeout:
 			fmt.Printf("%+v\n", a)
-			Timer_stop()	
+			Timer_stop()
 			Fsm_onDoorTimeout()
 
 		case a := <-drv_obstr:
