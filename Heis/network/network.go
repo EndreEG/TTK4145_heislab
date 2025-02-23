@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-<<<<<<< HEAD
-<<<<<<< HEAD
 	"sync"
 )
 
@@ -60,10 +58,7 @@ func handleConnection(conn net.Conn) {
 
 		fmt.Printf("Received update: %+v\n", state)
 	}
-=======
-=======
->>>>>>> 971c211034ceb8d192766b66e410b977c4751bd1
-)
+}
 
 type ElevatorState struct {
 	ID       string `json:"id"`
@@ -90,8 +85,4 @@ func SendElevatorUpdate(id string, floor int, behavior string) {
 	writer := bufio.NewWriter(conn)
 	writer.WriteString(string(data) + "\n")
 	writer.Flush()
-<<<<<<< HEAD
->>>>>>> 971c211... Implemented network functionality
-=======
->>>>>>> 971c211034ceb8d192766b66e410b977c4751bd1
 }
