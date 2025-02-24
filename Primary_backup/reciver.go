@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"os"
 	"os/signal"
-	"strconv"
+//	"strconv"
 	"syscall"
 	"time"
 )
@@ -29,6 +29,8 @@ func main() {
 		fmt.Println("Primary found, starting as secondary.")
 		go startSecondary(secondaryPort, primaryPort)
 	}
+
+	//StartTCPServer(primaryPort) // Pick whatever port you like
 
 	select {}
 }
@@ -51,7 +53,7 @@ type State struct {
 
 // StartTCPServer listens for incoming elevator state updates
 func StartTCPServer(port string) {
-	listener, err := net.Listen("tcp", ":"+port)
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		fmt.Println("Failed to start server:", err)
 		return
@@ -100,6 +102,7 @@ const (
 	stateFile     = "count_state.txt"
 )
 
+/*
 func loadCount() int {
 	file, err := os.Open(stateFile)
 	if err != nil {
@@ -121,6 +124,7 @@ func saveCount(count int) {
 	defer file.Close()
 	fmt.Fprintf(file, "%d", count)
 }
+	*/
 
 func startPrimary(primaryAddr, secondaryAddr string) {
 	listener, err := net.Listen("tcp", primaryAddr)
@@ -136,7 +140,7 @@ func startPrimary(primaryAddr, secondaryAddr string) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 
-	count := loadCount()
+	//count := loadCount()
 	var conn net.Conn
 	for {
 		if conn == nil {
@@ -152,15 +156,15 @@ func startPrimary(primaryAddr, secondaryAddr string) {
 		select {
 		case <-signalChan:
 			fmt.Println("Primary shutting down, saving state and notifying secondary...")
-			saveCount(count)
+			//saveCount(count)
 			conn.Close()
 			return
 		default:
 			time.Sleep(1 * time.Second)
-			count++
-			saveCount(count)
-			fmt.Println("Count:", count)
-			fmt.Fprintf(conn, "%d\n", count)
+			//count++
+			//saveCount(count)
+			//fmt.Println("Count:", count)
+			//fmt.Fprintf(conn, "%d\n", count)
 		}
 	}
 }
@@ -174,7 +178,7 @@ func startSecondary(secondaryAddr, primaryAddr string) {
 	defer listener.Close()
 	fmt.Println("Secondary started on", secondaryAddr)
 
-	count := loadCount()
+	//count := loadCount()
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -185,8 +189,8 @@ func startSecondary(secondaryAddr, primaryAddr string) {
 
 		scanner := bufio.NewScanner(conn)
 		for scanner.Scan() {
-			count, _ = strconv.Atoi(scanner.Text())
-			saveCount(count)
+		//	count, _ = strconv.Atoi(scanner.Text())
+		//	saveCount(count)
 		}
 
 		fmt.Println("Primary disconnected. Becoming primary...")

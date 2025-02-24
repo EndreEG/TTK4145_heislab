@@ -12,8 +12,8 @@ type State struct {
 	Elevator_id      int
 	Elevator_floor   int
 	Elevator_dir     int
-	ElevatorBehaviour int
-	Elevator_request [NumFloors][NumButtons]int
+	Elevator_behaviour int
+	Elevator_requests [NumFloors][NumButtons]int
 }
 
 var state State
@@ -88,9 +88,9 @@ func main() {
 
 		state.Elevator_id = 1
 		state.Elevator_dir = int(elevator.dirn)
-		state.ElevatorBehaviour = int(elevator.behaviour)
+		state.Elevator_behaviour = int(elevator.behaviour)
 		state.Elevator_floor = elevator.floor
-		state.Elevator_request = elevator.request
+		state.Elevator_requests = elevator.request
 
 		network.SendElevatorState(state)
 
