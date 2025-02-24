@@ -12,34 +12,13 @@ type State struct {
 	Elevator_id      int
 	Elevator_floor   int
 	Elevator_dir     int
+	ElevatorBehaviour int
 	Elevator_request [NumFloors][NumButtons]int
 }
 
 var state State
 
 func main() {
-	/*
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <server|client> [elevatorID]")
-		os.Exit(1)
-	}
-
-	role := os.Args[1]
-	elevatorID := "Elevator1" // Default ID for primary
-
-	if role == "server" {
-		fmt.Println("Starting as PRIMARY SERVER")
-		go network.StartServer("5000") // Start TCP server
-	} else if role == "client" && len(os.Args) == 3 {
-		elevatorID = os.Args[2] // Assign ID from command-line argument
-		fmt.Println("Starting as SECONDARY CLIENT:", elevatorID)
-		go network.StartClient("localhost:5000", elevatorID) // Connect to primary
-	} else {
-		fmt.Println("Invalid arguments")
-		os.Exit(1)
-	}
-*/
-
 	numFloors := 4
 
 	elevio.Init("localhost:15657", numFloors)
@@ -109,6 +88,7 @@ func main() {
 
 		state.Elevator_id = 1
 		state.Elevator_dir = int(elevator.dirn)
+		state.ElevatorBehaviour = int(elevator.behaviour)
 		state.Elevator_floor = elevator.floor
 		state.Elevator_request = elevator.request
 
