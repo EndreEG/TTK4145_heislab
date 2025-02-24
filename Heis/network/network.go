@@ -1,5 +1,6 @@
 package network
 
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -33,3 +34,4 @@ func SendElevatorUpdate(id string, floor int, behavior string) {
 	writer.WriteString(string(data) + "\n")
 	writer.Flush()
 }
+*/

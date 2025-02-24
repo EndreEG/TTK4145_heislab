@@ -1,5 +1,6 @@
 package network
 
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -59,3 +60,4 @@ func handleConnection(conn net.Conn) {
 		fmt.Printf("Received update: %+v\n", state)
 	}
 }
+*/

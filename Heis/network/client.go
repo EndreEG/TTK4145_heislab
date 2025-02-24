@@ -1,5 +1,6 @@
 package network
 
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -44,3 +45,4 @@ func getCurrentBehavior() string {
 	// Replace with actual behavior retrieval
 	return "MovingUp"
 }
+*/

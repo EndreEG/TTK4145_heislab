@@ -8,7 +8,17 @@ import (
 	"time"
 )
 
+type State struct {
+	Elevator_id      int
+	Elevator_floor   int
+	Elevator_dir     int
+	Elevator_request [NumFloors][NumButtons]int
+}
+
+var state State
+
 func main() {
+	/*
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <server|client> [elevatorID]")
 		os.Exit(1)
@@ -28,6 +38,7 @@ func main() {
 		fmt.Println("Invalid arguments")
 		os.Exit(1)
 	}
+*/
 
 	numFloors := 4
 
@@ -95,6 +106,13 @@ func main() {
 			elevio.SetStopLamp(false)
 			os.Exit(0)
 		}
+
+		state.Elevator_id = 1
+		state.Elevator_dir = int(elevator.dirn)
+		state.Elevator_floor = elevator.floor
+		state.Elevator_request = elevator.request
+
+		network.SendElevatorState(state)
 
 		time.Sleep((500 * time.Duration(inputPollRate)))
 	}
